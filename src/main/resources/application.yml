@@ -1,0 +1,53 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /camera
+
+  # 配置rabbitmq
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: admin
+    password: admin123
+    virtual-host: /
+    # 手动提交消息
+    listener:
+      simple:
+        acknowledge-mode: manual #采用手动应答
+        concurrency: 1 #指定最小的消费者数量
+        max-concurrency: 1 #指定最大的消费者数量
+        retry:
+          enabled: true #是否开启消费者重试（为false时关闭消费者重试，这时消费端代码异常会一直重复收到消息）
+          max-attempts: 5 #最大重试次数
+          initial-interval: 5000 #重试间隔时间（单位毫秒）
+          max-interval: 1200000 #重试最大时间间隔（单位毫秒）
+          multiplier: 5 #应用于前一重试间隔的乘法器。
+      direct:
+        acknowledge-mode: manual
+    publisher-returns: true #开启 return 确认机制
+    publisher-confirms: true #开启 confirm 确认机制
+    template:
+      mandatory: true #设置为 true后消费者在消息没有被路由到合适队列情况下会被return监听，而不会自动删除
+spring:
+    freemarker:
+      request-context-attribute: request
+      prefix: /templates/
+      suffix: .html
+      content-type: text/html
+      enabled: true
+      cache: false
+      charset: UTF-8
+      allow-request-override: false
+      expose-request-attributes: true
+      expose-session-attributes: true
+      expose-spring-macro-helpers: true
+      template-loader-path: classpath:/templates/
+    resources:
+      static-locations: classpath:/static/**
+
+# FastDFS 相关配置
+# FastDFS 文件上传地址
+fastdfs:
+  fileUploadPath: http://200.22.242.42:9092/v1/files
+  # FastDFS 文件读取跟路径
+  fileReadPath: http://200.22.242.42:9093/
